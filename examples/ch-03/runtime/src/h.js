@@ -31,3 +31,8 @@ export function hFragment(vNodes) {
         children: mapTextNodes(withoutNulls(vNodes)),
     }
 }
+
+export function lipsum(words) {
+    const lipsumText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`
+    return lipsumText.split(' ').slice(0, words).join(' ')
+}
