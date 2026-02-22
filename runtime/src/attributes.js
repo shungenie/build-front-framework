@@ -36,5 +36,18 @@ export function removeStyle(el, name) {
     el.style[name] = null;
 }
 
+export function setAttribute(el, name, value) {
+    if (value == null) {
+        removeAttribute(el, name);
+    } else if (name.startsWith('data-')) {
+        el.setAttribute(name, value);
+    } else {
+        el[name] = value;
+    }
+}
 
-// TODO: implement setAttribute
+export function removeAttribute(el, name) {
+    el[name] = null;
+    el.removeAttribute(name);
+}
+
