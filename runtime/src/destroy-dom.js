@@ -28,7 +28,10 @@ export function destroyDOM(vdom) {
     delete vdom.el;
 }
 
-// TODO: implement removeTextNode()
+function removeTextNode(vdom) {
+    const { el } = vdom;
+    el.remove();
+}
 
 // TODO: implement removeElementNode()
 
