@@ -43,6 +43,57 @@ class ArrayWithOriginalIndices {
 
         return operation;
     }
+
+    isNoop(index, newArray) {
+        if (index >= this.length) {
+            return false;
+        }
+
+        const item = this.#array[index];
+        const newItem = newArray[index];
+
+        return this.#equalsFn(item, newItem);
+    }
+
+    originalIndexAt(index) {
+        return this.#originalIndices[index];
+    }
+
+    noopItem(index) {
+        return {
+            op: ARRAY_DIFF_OP.NOOP,
+            originalIndex: this.originalIndexAt(index),
+            index,
+            item: this.#array[index],
+        }
+    }
+
+    isAddition(item, fromIdx) {
+        return this.findIndexFrom(item, fromIdx) === -1;
+    }
+
+    findIndexFrom(item, fromIndex) {
+        for (let i = fromIndex; i < this.length; i++) {
+            if (this.#equalsFn(item, this.#array[i])) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    addItem(item, index) {
+        const operation = {
+            op: ARRAY_DIFF_OP.ADD,
+            index,
+            item,
+        }
+
+        this.#array.splice(index, 0, item);
+        this.#originalIndices.splice(index, 0, -1);
+
+        return operation;
+    }
 }
 
 export function withoutNulls(arr) {
@@ -75,9 +126,17 @@ export function arraysDiffSequence(
             continue;
         }
 
- // TODO: noop case
+        if (array.isNoop(index, newArray)) {
+            sequence.push(array.noopItem(index));
+            continue;
+        }
 
- // TODO: addition case
+        const item = newArray[index];
+
+        if (array.isAddition(item, index)) {
+            sequence.push(array.addItem(item, index));
+            continue;
+        }
 
  // TODO: move case
     }
