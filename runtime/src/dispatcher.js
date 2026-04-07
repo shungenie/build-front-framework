@@ -28,4 +28,13 @@ export class Dispatcher {
             this.#afterHandlers.splice(idx, 1);
         }
     }
+
+    dispatch(commandName, payload) {
+        if (this.#subs.has(commandName)) {
+            this.#subs.get(commandName).forEach((handler) => handler(payload));
+        } else {
+            console.warn(`No handlers for command: ${commandName}`);
+        }
+        this.#afterHandlers.forEach((handler) => handler());
+    }
 }
