@@ -1,5 +1,5 @@
 {
-  "name": "fe-fwk",
+  "name": "shunfwk-project",
   "version": "1.0.8",
   "description": "A frontend framework to teach web developers how frontend frameworks work.",
   "keywords": [
@@ -10,9 +10,9 @@
     "web",
     "development"
   ],
-  "main": "dist/fe-fwk.js",
+  "main": "dist/shunfwk-project.js",
   "files": [
-    "dist/fe-fwk.js"
+    "dist/shunfwk-project.js"
   ],
   "homepage": "http://mng.bz/aM2o",
   "bugs": {
