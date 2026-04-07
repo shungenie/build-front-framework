@@ -1,6 +1,6 @@
 import { destroyDOM } from './destroy-dom';
 import { Dispatcher } from './dispatcher';
-import { moundDOM } from './mound-dom';
+import { mountDOM } from './mount-dom';
 
 export function createApp({state, view, reducers = {}}) {
     let parentEl = null;
