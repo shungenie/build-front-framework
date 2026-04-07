@@ -9,6 +9,10 @@ export function createApp({state, view, reducers = {}}) {
     const dispatcher = new Dispatcher();
     const subscriptions = [dispatcher.afterEveryCommand(renderApp)];
 
+    function emit(eventName, payload) {
+        dispatcher.dispatch(eventName, payload);
+    }
+
     for (const actionName in reducers) {
         const reducer = reducers[actionName];
 
@@ -23,7 +27,7 @@ export function createApp({state, view, reducers = {}}) {
             destroyDOM(vdom);
         }
 
-        vdom = view(state);
+        vdom = view(state, emit);
         mountDOM(vdom, parentEl);
     }
 
@@ -31,6 +35,12 @@ export function createApp({state, view, reducers = {}}) {
         mount(_parentEl) {
             parentEl = _parentEl;
             renderApp();
+        },
+
+        unmount() {
+            destroyDOM(vdom);
+            vdom = null;
+            subscriptions.forEach((unsubscribe) => unsubscribe());
         }
     }
 }
