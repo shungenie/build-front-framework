@@ -94,6 +94,44 @@ class ArrayWithOriginalIndices {
 
         return operation;
     }
+
+    moveItem(item, toIndex) {
+        // 移動先の位置から探索を始めて、古い配列の中で対象の要素を探す
+        const fromIndex = this.findIndexFrom(item, toIndex);
+
+        // move 操作の内容を表すオブジェクトを作る
+        const operation = {
+            op: ARRAY_DIFF_OP.MOVE,
+            // 操作オブジェクトに元のインデックスを含める
+            originalIndex: this.originalIndexAt(fromIndex),
+            from: fromIndex,
+            index: toIndex,
+            item: this.#array[fromIndex],
+        }
+
+        // 古い位置から要素を取り出す
+        const [_item] = this.#array.splice(fromIndex, 1);
+        // 新しい位置に要素を挿入する
+        this.#array.splice(toIndex, 0, _item);
+
+        // #originalIndices 配列から元のインデックスを取り出す
+        const [originalIndex] = this.#originalIndices.splice(fromIndex, 1);
+        // 新しい位置に元のインデックスを挿入する
+        this.#originalIndices.splice(toIndex, 0, originalIndex);
+        
+        // move 操作オブジェクトを返す
+        return operation;
+    }
+
+    removeItemsAfter(index) {
+        const operations = [];
+
+        while (this.length > index) {
+            operations.push(this.removeItem(index));
+        }
+
+        return operations;
+    }
 }
 
 export function withoutNulls(arr) {
@@ -117,7 +155,7 @@ export function arraysDiffSequence(
     equalsFn = (a, b) => a === b
 ) {
     const sequence = [];
-    const array = newArrayWithOriginalIndices(oldArray, equalsFn);
+    const array = new ArrayWithOriginalIndices(oldArray, equalsFn);
 
     for (let index = 0; index < newArray.length; index++) {
         if (array.isRemoval(index, newArray)) {
@@ -138,10 +176,10 @@ export function arraysDiffSequence(
             continue;
         }
 
- // TODO: move case
+        sequence.push(array.moveItem(item, index));
     }
 
- // TODO: remove extra items
+    sequence.push(...array.removeItemsAfter(newArray.length));
 
     return sequence
 }
