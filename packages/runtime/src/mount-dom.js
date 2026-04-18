@@ -49,7 +49,9 @@ function createFragmentNodes(vdom, parentEl, index) {
     const { children } = vdom;
     vdom.el = parentEl;
 
-    children.forEach((child, i) => mountDOM(child, parentEl, index ? index + i : null));
+    children.forEach((child, i) => 
+        mountDOM(child, parentEl, index ? index + i : null)
+    );
 }
 
 function addProps(el, props, vdom) {
