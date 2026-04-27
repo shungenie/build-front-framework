@@ -7,6 +7,11 @@ export function defineComponent({ render }) {
         #vdom = null;
         #hostEl = null;
 
+        constructor(props = {}) {
+            this.props = props;
+            this.state = state ? this.state(props) : {};
+        }
+
         render() {
             return render();
         }
