@@ -1,4 +1,5 @@
 import { destroyDOM } from "./destroy-dom";
+import { DOM_TYPES, extractChildren } from "./h";
 import { mountDOM } from "./mount-dom";
 import { patchDOM } from "./patch-dom";
 
@@ -13,6 +14,30 @@ export function defineComponent({ render }) {
             this.state = state ? this.state(props) : {};
         }
 
+        get elements() {
+            if (this.#vdom == null) {
+                return [];
+            }
+
+            if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
+                return extractChildren(this.#vdom).map((child) => child.el);
+            }
+
+            return [this.#vdom.el];
+        }
+
+        get firstElement() {
+            return this.elements[0];
+        }
+
+        get offset() {
+            if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
+                return Array.from(this.#hostEl.children).indexOf(this.firstElement);
+            }
+
+            return 0;
+        }
+        
         updateState(state) {
             this.state = { ...this.state, ...state };
             this.#patch();
