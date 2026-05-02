@@ -37,7 +37,7 @@ export function defineComponent({ render }) {
 
             return 0;
         }
-        
+
         updateState(state) {
             this.state = { ...this.state, ...state };
             this.#patch();
@@ -76,7 +76,7 @@ export function defineComponent({ render }) {
             }
 
             const vdom = this.render();
-            this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl);
+            this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl, this);
         }
     }
 
