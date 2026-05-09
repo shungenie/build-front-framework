@@ -53,7 +53,7 @@ export function defineComponent({ render, state, ...methods }) {
                 throw new Error("Component is already mounted");
             }
             this.#vdom = this.render();
-            mountDOM(this.#vdom, hostEl, index);
+            mountDOM(this.#vdom, hostEl, index, this);
 
             this.#hostEl = hostEl;
             this.#isMounted = true;
