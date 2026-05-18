@@ -21,7 +21,13 @@ export function defineComponent({ render, state, ...methods }) {
             }
 
             if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
-                return extractChildren(this.#vdom).map((child) => child.el);
+                return extractChildren(this.#vdom).flatMap((child) => {
+                    if (child.type === DOM_TYPES.COMPONENT) {
+                        return child.component.elements;
+                    }
+
+                    return [child.el];
+                })
             }
 
             return [this.#vdom.el];
@@ -37,6 +43,16 @@ export function defineComponent({ render, state, ...methods }) {
             }
 
             return 0;
+        }
+
+        updateProps(props) {
+            const newProps = { ...this.props, ...props };
+            if (areNodesEqual(this.props, newProps)) {
+                return;
+            }
+
+            this.props = newProps;
+            this.#patch();
         }
 
         updateState(state) {

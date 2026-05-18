@@ -20,6 +20,11 @@ export function destroyDOM(vdom) {
             break;
         }
 
+        case DOM_TYPES.COMPONENT: {
+            vdom.component.unmount();
+            break;
+        }
+
         default: {
             throw new Error(`Unknown VDOM type: ${type}`);
         }
