@@ -9,10 +9,18 @@ export function defineComponent({ render, state, ...methods }) {
         #isMounted = false;
         #vdom = null;
         #hostEl = null;
+        #eventHandlers = null;
+        #parentComponent = null;
 
-        constructor(props = {}) {
+        constructor(
+            props = {},
+            eventHandlers = {},
+            parentComponent = null,
+        ) {
             this.props = props;
             this.state = state ? this.state(props) : {};
+            this.#eventHandlers = eventHandlers;
+            this.#parentComponent = parentComponent;
         }
 
         get elements() {

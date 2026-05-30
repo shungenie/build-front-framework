@@ -62,8 +62,8 @@ function createFragmentNodes(vdom, parentEl, index, hostComponent) {
 
 function createComponentNode(vdom, parentEl, index, hostComponent) {
     const Component = vdom.tag;
-    const props = vdom.props;
-    const component = new Component(props);
+    const { props, events } = extractPropsAndEvents(vdom);
+    const component = new Component(props, events, hostComponent);
 
     component.mount(parentEl, index);
     vdom.component = component;
