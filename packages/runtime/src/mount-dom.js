@@ -41,10 +41,10 @@ function createTextNode(vdom, parentEl, index) {
 }
 
 function createElementNode(vdom, parentEl, index, hostComponent) {
-    const { tag, props, children } = vdom;
+    const { tag, children } = vdom;
 
     const element = document.createElement(tag);
-    addProps(element, props, vdom, hostComponent);
+    addProps(element, vdom, hostComponent);
     vdom.el = element;
 
     children.forEach((child) => mountDOM(child, element, null, hostComponent));
@@ -70,8 +70,8 @@ function createComponentNode(vdom, parentEl, index, hostComponent) {
     vdom.el = component.firstElement;
 }
 
-function addProps(el, props, vdom, hostComponent) {
-    const { on: events, ...attrs } = props;
+function addProps(el, vdom, hostComponent) {
+    const { props: attrs, events } = extractPropsAndEvents(vdom);
 
     vdom.listeners = addEventListeners(events, el, hostComponent);
     setAttributes(el, attrs);
