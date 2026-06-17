@@ -4,7 +4,15 @@ import { mountDOM } from "./mount-dom";
 import { patchDOM } from "./patch-dom";
 import { hasOwnProperty } from "./utils/objects";
 
-export function defineComponent({ render, state, ...methods }) {
+const emptyFn = () => {};
+
+export function defineComponent({ 
+    render, 
+    state, 
+    onMounted = emptyFn,
+    onUnmounted = emptyFn,
+    ...methods 
+}) {
     class Component {
         #isMounted = false;
         #vdom = null;
@@ -23,6 +31,14 @@ export function defineComponent({ render, state, ...methods }) {
             this.state = state ? this.state(props) : {};
             this.#eventHandlers = eventHandlers;
             this.#parentComponent = parentComponent;
+        }
+
+        onMounted() {
+            return Promise.resolve(onMounted.call(this));
+        }
+
+        onUnmounted() {
+            return Promise.resolve(onUnmounted.call(this));
         }
 
         get elements() {
