@@ -35,6 +35,32 @@ function removeEventListeners(listeners = {}, el) {
   });
 }
 
+let isScheduled = false;
+const jobs = [];
+function enqueueJob(job) {
+    jobs.push(job);
+    scheduleUpdate();
+}
+function scheduleUpdate() {
+    if (isScheduled) return;
+    isScheduled = true;
+    queueMicrotask(processJobs);
+}
+function processJobs() {
+    while (jobs.length > 0) {
+        const job = jobs.shift();
+        const result = job();
+        Promise.resolve(result).then(
+            () => {
+            },
+            (error) => {
+                console.error(`[scheduler]: ${error}`);
+            }
+        );
+    }
+    isScheduled = false;
+}
+
 const ARRAY_DIFF_OP = {
     ADD: 'add',
     REMOVE: 'remove',
@@ -236,6 +262,7 @@ function destroyDOM(vdom) {
         }
         case DOM_TYPES.COMPONENT: {
             vdom.component.unmount();
+            enqueueJob(() => vdom.component.onUnmounted());
             break;
         }
         default: {
@@ -327,6 +354,7 @@ function mountDOM(vdom, parentEl, index, hostComponent = null) {
         }
         case DOM_TYPES.COMPONENT: {
             createComponentNode(vdom, parentEl, index, hostComponent);
+            enqueueJob(() => vdom.component.onMounted());
             break;
         }
         default: {
@@ -607,7 +635,14 @@ function patchComponent(oldVdom, newVdom) {
     newVdom.el = component.firstElement;
 }
 
-function defineComponent({ render, state, ...methods }) {
+const emptyFn = () => {};
+function defineComponent({
+    render,
+    state,
+    onMounted = emptyFn,
+    onUnmounted = emptyFn,
+    ...methods
+}) {
     class Component {
         #isMounted = false;
         #vdom = null;
@@ -625,6 +660,12 @@ function defineComponent({ render, state, ...methods }) {
             this.state = state ? this.state(props) : {};
             this.#eventHandlers = eventHandlers;
             this.#parentComponent = parentComponent;
+        }
+        onMounted() {
+            return Promise.resolve(onMounted.call(this));
+        }
+        onUnmounted() {
+            return Promise.resolve(onUnmounted.call(this));
         }
         get elements() {
             if (this.#vdom == null) {

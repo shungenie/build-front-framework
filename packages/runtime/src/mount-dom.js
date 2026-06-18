@@ -1,6 +1,7 @@
-import { DOM_TYPES } from './h';
 import { setAttributes } from './attributes';
 import { addEventListeners } from './events';
+import { DOM_TYPES } from './h';
+import { enqueueJob } from './scheduler';
 import { extractPropsAndEvents } from './utils/props';
 
 export function mountDOM(vdom, parentEl, index, hostComponent = null) {
@@ -22,6 +23,7 @@ export function mountDOM(vdom, parentEl, index, hostComponent = null) {
 
         case DOM_TYPES.COMPONENT: {
             createComponentNode(vdom, parentEl, index, hostComponent);
+            enqueueJob(() => vdom.component.onMounted());
             break;
         }
 
