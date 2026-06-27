@@ -1,6 +1,8 @@
+import { Dispatcher } from "./dispatcher";
 import { destroyDOM } from "./destroy-dom";
 import { DOM_TYPES, extractChildren } from "./h";
 import { mountDOM } from "./mount-dom";
+import { areNodesEqual } from "./nodes-equal";
 import { patchDOM } from "./patch-dom";
 import { hasOwnProperty } from "./utils/objects";
 
@@ -28,7 +30,7 @@ export function defineComponent({
             parentComponent = null,
         ) {
             this.props = props;
-            this.state = state ? this.state(props) : {};
+            this.state = state ? state(props) : {};
             this.#eventHandlers = eventHandlers;
             this.#parentComponent = parentComponent;
         }
@@ -130,9 +132,8 @@ export function defineComponent({
 
         #wireEventHandlers() {
             this.#subscriptions = Object.entries(this.#eventHandlers).map(
-                ([eventName, handler]) => {
-                    this.#wireEventHandlers(eventName, handler);
-                }
+                ([eventName, handler]) =>
+                    this.#wireEventHandler(eventName, handler)
             )
         }
 

@@ -1,4 +1,5 @@
 import { destroyDOM } from './destroy-dom';
+import { h } from './h';
 import { mountDOM } from './mount-dom';
 
 export function createApp(RootComponent, props = {}) {
@@ -33,4 +34,4 @@ export function createApp(RootComponent, props = {}) {
             reset();
         }
     }
-}``
+}

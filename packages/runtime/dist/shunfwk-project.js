@@ -207,7 +207,7 @@ const DOM_TYPES = {
     FRAGMENT: 'fragment',
     COMPONENT: 'component',
 };
-function h$1(tag, props = {}, children = []) {
+function h(tag, props = {}, children = []) {
     const type = typeof tag === 'string' ? DOM_TYPES.ELEMENT : DOM_TYPES.COMPONENT;
     return {
         tag,
@@ -443,7 +443,41 @@ function createApp(RootComponent, props = {}) {
     }
 }
 
-function areNodesEqual$1(nodeOne, nodeTwo) {
+class Dispatcher {
+    #subs = new Map();
+    #afterHandlers = [];
+    subscribe(commandName, handler) {
+        if (!this.#subs.has(commandName)) {
+            this.#subs.set(commandName, []);
+        }
+        const handlers = this.#subs.get(commandName);
+        if (handlers.includes(handler)) {
+            return () => {};
+        }
+        handlers.push(handler);
+        return () => {
+            const idx = handlers.indexOf(handler);
+            handlers.splice(idx, 1);
+        }
+    }
+    afterEveryCommand(handler) {
+        this.#afterHandlers.push(handler);
+        return () => {
+            const idx = this.#afterHandlers.indexOf(handler);
+            this.#afterHandlers.splice(idx, 1);
+        }
+    }
+    dispatch(commandName, payload) {
+        if (this.#subs.has(commandName)) {
+            this.#subs.get(commandName).forEach((handler) => handler(payload));
+        } else {
+            console.warn(`No handlers for command: ${commandName}`);
+        }
+        this.#afterHandlers.forEach((handler) => handler());
+    }
+}
+
+function areNodesEqual(nodeOne, nodeTwo) {
     if (nodeOne.type !== nodeTwo.type) {
         return false;
     }
@@ -483,7 +517,7 @@ function isNotBlankOrEmptyString(str) {
 }
 
 function patchDOM(oldVdom, newVdom, parentEl, hostComponent = null) {
-    if (!areNodesEqual$1(oldVdom, newVdom)) {
+    if (!areNodesEqual(oldVdom, newVdom)) {
         const index = findIndexInParent(parentEl, oldVdom.el);
         destroyDOM(oldVdom);
         mountDOM(newVdom, parentEl, index, hostComponent);
@@ -598,7 +632,7 @@ function patchChildren(oldVdom, newVdom, hostComponent) {
     const oldChildren = extractChildren(oldVdom);
     const newChildren = extractChildren(newVdom);
     const parentEl = oldVdom.el;
-    const diffSeq = arraysDiffSequence(oldChildren, newChildren, areNodesEqual$1);
+    const diffSeq = arraysDiffSequence(oldChildren, newChildren, areNodesEqual);
     for (const operation of diffSeq) {
         const { originalIndex, index, item } = operation;
         const offset = hostComponent?.offset ?? 0;
@@ -657,7 +691,7 @@ function defineComponent({
             parentComponent = null,
         ) {
             this.props = props;
-            this.state = state ? this.state(props) : {};
+            this.state = state ? state(props) : {};
             this.#eventHandlers = eventHandlers;
             this.#parentComponent = parentComponent;
         }
@@ -738,9 +772,8 @@ function defineComponent({
         }
         #wireEventHandlers() {
             this.#subscriptions = Object.entries(this.#eventHandlers).map(
-                ([eventName, handler]) => {
-                    this.#wireEventHandlers(eventName, handler);
-                }
+                ([eventName, handler]) =>
+                    this.#wireEventHandler(eventName, handler)
             );
         }
         #wireEventHandler(eventName, handler) {
@@ -764,4 +797,4 @@ function defineComponent({
     return Component;
 }
 
-export { createApp, defineComponent, h$1 as h, hFragment, hString };
+export { createApp, defineComponent, h, hFragment, hString };

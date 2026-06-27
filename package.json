@@ -5,7 +5,8 @@
   "description": "Code for the book \"Build a frontend framework from scratch\".",
   "workspaces": [
     "packages/runtime",
-    "packages/cli"
+    "packages/cli",
+    "examples/ch-14"
   ],
   "scripts": {
     "serve:examples": "npx http-server . -o ./examples/ -bg"
